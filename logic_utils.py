@@ -67,7 +67,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
         if points < 10:
             points = 10
         return current_score + points
-#FIX: doesn't add points on even guesses
+#FIX: subtracts points on all guesses
     if outcome == "Too High":
         return current_score - 5
 

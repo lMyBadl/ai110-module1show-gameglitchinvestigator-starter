@@ -187,8 +187,8 @@ class TestUpdateScore:
 
     # --- Too High outcomes ---
 
-    def test_too_high_on_even_attempt_adds_5(self):
-        assert update_score(50, "Too High", 2) == 55
+    def test_too_high_on_even_attempt_subtracts_5(self):
+        assert update_score(50, "Too High", 2) == 45
 
     def test_too_high_on_odd_attempt_subtracts_5(self):
         assert update_score(50, "Too High", 1) == 45
@@ -211,9 +211,9 @@ class TestUpdateScore:
     def test_score_accumulates_across_multiple_guesses(self):
         score = 0
         score = update_score(score, "Too Low", 1)   # -5 → -5
-        score = update_score(score, "Too High", 2)  # +5 →  0
-        score = update_score(score, "Win", 3)       # 100-40=60 → 60
-        assert score == 60
+        score = update_score(score, "Too High", 2)  # -5 → -10
+        score = update_score(score, "Win", 3)       # 100-40=60 → 50
+        assert score == 50
 
 
 # ---------------------------------------------------------------------------
@@ -298,17 +298,17 @@ class TestUpdateScoreSequence:
 
     def test_alternating_too_high_too_low_then_win(self):
         # Attempt 1: Too Low → -5 (score: -5)
-        # Attempt 2: Too High even → +5 (score: 0)
-        # Attempt 3: Too Low → -5 (score: -5)
-        # Attempt 4: Too High even → +5 (score: 0)
-        # Attempt 5: Win → 100 - 60 = 40 (score: 40)
+        # Attempt 2: Too High → -5 (score: -10)
+        # Attempt 3: Too Low → -5 (score: -15)
+        # Attempt 4: Too High → -5 (score: -20)
+        # Attempt 5: Win → 100 - 60 = 40 (score: 20)
         score = 0
         score = update_score(score, "Too Low", 1)
         score = update_score(score, "Too High", 2)
         score = update_score(score, "Too Low", 3)
         score = update_score(score, "Too High", 4)
         score = update_score(score, "Win", 5)
-        assert score == 40
+        assert score == 20
 
     def test_winning_on_last_allowed_attempt_gives_minimum_win_points(self):
         # Eight failed guesses (attempt limit for Normal is 8), win at attempt 9.
@@ -320,12 +320,12 @@ class TestUpdateScoreSequence:
         expected = (0 - 5 * 8) + 10   # -40 + 10 = -30
         assert score == expected
 
-    def test_too_high_even_attempts_all_add_points(self):
-        # Attempts 2, 4, 6 are all even Too High → each adds 5
+    def test_too_high_even_attempts_all_subtract_points(self):
+        # Attempts 2, 4, 6 are all Too High → each subtracts 5
         score = 0
         for attempt in [2, 4, 6]:
             score = update_score(score, "Too High", attempt)
-        assert score == 15
+        assert score == -15
 
     def test_too_high_odd_attempts_all_subtract_points(self):
         # Attempts 1, 3, 5 are all odd Too High → each subtracts 5
@@ -413,22 +413,22 @@ class TestFullGameSimulation:
         score = update_score(score, outcome, 1)
         assert score == -5
 
-        # Attempt 2: "75" → Too High → score 0  (even attempt: +5)
+        # Attempt 2: "75" → Too High → score -10  (-5)
         ok, guess, _ = parse_guess("75", low, high)
         assert ok
         outcome, msg = check_guess(guess, secret)
         assert outcome == "Too High"
         assert "lower" in msg.lower()
         score = update_score(score, outcome, 2)
-        assert score == 0
+        assert score == -10
 
-        # Attempt 3: "50" → Win → score 60  (100 - 10*(3+1) = 60)
+        # Attempt 3: "50" → Win → score 50  (100 - 10*(3+1) = 60, -10+60=50)
         ok, guess, _ = parse_guess("50", low, high)
         assert ok
         outcome, _ = check_guess(guess, secret)
         assert outcome == "Win"
         score = update_score(score, outcome, 3)
-        assert score == 60
+        assert score == 50
 
     def test_invalid_guesses_do_not_advance_game_state(self):
         # Invalid inputs should parse-fail; game outcome and score stay unchanged
@@ -479,5 +479,5 @@ class TestFullGameSimulation:
         outcome, _ = check_guess(guess, secret)
         assert outcome == "Win"
         score = update_score(score, outcome, 3)
-        # Too Low (-5) + Too High even (+5) + Win at attempt 3 (100-40=60) = 60
-        assert score == 60
+        # Too Low (-5) + Too High (-5) + Win at attempt 3 (100-40=60) = 50
+        assert score == 50
