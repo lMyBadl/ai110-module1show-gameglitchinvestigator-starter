@@ -25,28 +25,33 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- [x] Describe the game's purpose.
+The purpose of the game is for the player to guess the random number in as few guesses as possible. 
+- [x] Detail which bugs you found.
+Some bugs that I found were the debug history and attempts number not updating immediately, guesses not in bounds allowed, hints being opposite, and weird logic on even guesses. The rest of the guesses are documented with the #FIX tag.
+- [x] Explain what fixes you applied.
+I collaborated with Claude to generate fixes to all the bugs mentioned above. I fixed the history and attempts updating incorrectly by changing the order of the python logic, and adding placeholders to keep the rendering of the webpage the same. I also used pytest to make sure that my code is running with the expected outputs and that the fixes that I implemented didn't change the expected functionality of the functions. 
 
 ## 📸 Demo Walkthrough
 
 Describe your fixed game in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
-
-**Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
+1. User chooses easy mode
+2. Game changes guess range from 1-20 and attempts to 6
+3. User enters guess of 19
+4. Game outputs 📉 Go LOWER!
+5. User enters guess of 1
+6. Game outputs 📈 Go HIGHER!
+7. Score updates correctly after each guess
+8. Game outputs 🎉 Correct! after number is guessed
 
 ## 🧪 Test Results
 
 ```
 # Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+test_game_logic.py ..........................................................                                                                           [100%]
+
+===================================================================== 58 passed in 0.59s =====================================================================
 ```
 
 ## 🚀 Stretch Features
